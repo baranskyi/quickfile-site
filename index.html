@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuickFile — the IDE-style file manager for Omarchy</title>
+<meta name="description" content="QuickFile is a native file manager sidebar for Omarchy: press SUPER+B, search in plain words with a local AI model, preview, move and undo safely, and find files on drives that aren't plugged in. Listed on the Omarchy Plugin Marketplace.">
+<link rel="canonical" href="https://omarchy-quickfile.vercel.app/">
+<meta name="theme-color" content="#111c18">
+<meta name="color-scheme" content="dark">
+<meta name="author" content="Slava Baranskyi">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="QuickFile for Omarchy">
+<meta property="og:title" content="QuickFile — the IDE-style file manager for Omarchy">
+<meta property="og:description" content="Press SUPER+B. Type what you remember. Open what you meant. A native Omarchy sidebar with local AI search, safe file operations and an offline catalog of your drives.">
+<meta property="og:url" content="https://omarchy-quickfile.vercel.app/">
+<meta property="og:image" content="https://omarchy-quickfile.vercel.app/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="QuickFile — pixel-art logo on a jade terminal background">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="QuickFile — the IDE-style file manager for Omarchy">
+<meta name="twitter:description" content="Press SUPER+B. Type what you remember. Open what you meant.">
+<meta name="twitter:image" content="https://omarchy-quickfile.vercel.app/assets/og.png">
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://omarchy-quickfile.vercel.app/#website",
+      "url": "https://omarchy-quickfile.vercel.app/",
+      "name": "QuickFile for Omarchy",
+      "inLanguage": "en",
+      "publisher": { "@id": "https://easygym.me/#slava-baranskyi" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://omarchy-quickfile.vercel.app/#app",
+      "name": "QuickFile",
+      "alternateName": "m0sthatedman.quickfile",
+      "description": "An IDE-inspired file manager sidebar for Omarchy with local AI search, previews, safe file operations, Git context, project knowledge and an offline catalog of external drives.",
+      "applicationCategory": "UtilitiesApplication",
+      "applicationSubCategory": "File manager",
+      "operatingSystem": "Linux (Omarchy 4)",
+      "softwareVersion": "0.17.0",
+      "license": "https://opensource.org/licenses/MIT",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "downloadUrl": "https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile",
+      "installUrl": "https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile",
+      "url": "https://omarchy-quickfile.vercel.app/",
+      "screenshot": "https://omarchy-quickfile.vercel.app/assets/demo-poster.jpg",
+      "sameAs": [
+        "https://github.com/baranskyi/omarchy-quickfile",
+        "https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile"
+      ],
+      "author": { "@id": "https://easygym.me/#slava-baranskyi" }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://easygym.me/#slava-baranskyi",
+      "name": "Slava Baranskyi",
+      "alternateName": ["Viacheslav Baranskyi", "Слава Баранский"],
+      "url": "https://www.linkedin.com/in/baranskiy/",
+      "jobTitle": "Founder",
+      "worksFor": { "@type": "Organization", "name": "easygym.me", "url": "https://easygym.me/" },
+      "alumniOf": { "@type": "CollegeOrUniversity", "name": "IE Business School" },
+      "description": "Founder of easygym.me, fitness club management software, based in Dubai. Fellow of the Chartered Institute of Marketing, MBA from IE Business School. Author of the QuickFile, Omavoice, Omacash and Omafold plugins for Omarchy.",
+      "sameAs": [
+        "https://www.linkedin.com/in/baranskiy/",
+        "https://www.restless-brain.com/about",
+        "https://github.com/baranskyi",
+        "https://easygym.me/en#founder"
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+/* Osaka Jade, straight from Omarchy's theme file (themes/osaka-jade/colors.toml). */
+:root {
+  --bg: #111c18;
+  --bg-0: #090f0d;
+  --bg-1: #0c1512;
+  --bg-2: #23372b;
+  --sel: #32473b;
+  --muted: #53685b;
+  --fg: #c1c497;
+  --fg-2: #81b8a8;
+  --fg-hi: #d6d5bc;
+  --fg-max: #f7e8b2;
+  --accent: #509475;
+  --cyan: #2dd5b7;
+  --cyan-soft: #8cd3cb;
+  --green: #63b07a;
+  --yellow: #e5c736;
+  --orange: #a2734b;
+  --red: #ff5345;
+  --magenta: #d2689c;
+
+  --px: 4px;
+  --pixel: "Silkscreen", "JetBrains Mono", monospace;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --gutter: 16px;
+  --max: 1160px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 56px; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background-color: var(--bg);
+  /* A faint 4px pixel grid, the canvas everything else snaps to. */
+  background-image:
+    linear-gradient(rgba(80, 148, 117, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 148, 117, .045) 1px, transparent 1px);
+  background-size: 16px 16px;
+  color: var(--fg);
+  font: 400 16px/1.65 var(--mono);
+  overflow-x: hidden;
+}
+/* CRT scanlines over the whole page; decorative, never in the way. */
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, .16) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+  z-index: 100;
+}
+img, video, canvas, svg { display: block; max-width: 100%; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { color: var(--fg-max); }
+::selection { background: var(--sel); color: var(--fg-max); }
+:focus-visible { outline: 2px dashed var(--yellow); outline-offset: 3px; }
+
+.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ───────── top bar: an Omarchy shell bar ───────── */
+.bar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bg-0);
+  border-bottom: 2px solid var(--bg-2);
+  font: 400 12px/1 var(--pixel);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.bar .wrap { display: flex; align-items: center; gap: 16px; height: 40px; }
+.bar-left, .bar-right { display: flex; align-items: center; gap: 12px; }
+.bar-left { flex: 1; min-width: 0; }
+.bar-right { flex: 1; justify-content: flex-end; }
+.bar-logo { display: flex; align-items: center; gap: 8px; color: var(--fg-hi); }
+.bar-logo .pxi { width: 16px; height: 16px; color: var(--cyan); }
+.ws { display: flex; gap: 4px; }
+.ws span {
+  display: grid; place-items: center;
+  width: 20px; height: 20px;
+  color: var(--muted);
+  border: 2px solid transparent;
+}
+.ws span.on { color: var(--bg-0); background: var(--cyan); }
+.bar-clock { color: var(--fg-2); white-space: nowrap; }
+.bar-right a { color: var(--fg); padding: 4px 2px; white-space: nowrap; }
+.bar-right a:hover { color: var(--cyan); }
+.bar-right a.bar-cta { color: var(--bg-0); background: var(--cyan); padding: 6px 10px; }
+.bar-right a.bar-cta:hover { background: var(--fg-max); color: var(--bg-0); }
+
+/* ───────── shared blocks ───────── */
+section { padding: 96px 0; position: relative; }
+.prompt {
+  margin: 0 0 12px;
+  font: 500 14px/1.4 var(--mono);
+  color: var(--fg-2);
+  overflow-wrap: anywhere;
+}
+.prompt .u { color: var(--green); }
+.prompt .h { color: var(--magenta); }
+.prompt .d { color: var(--cyan-soft); }
+.prompt .c { color: var(--fg-hi); }
+h1, h2, h3 { font-family: var(--pixel); font-weight: 700; line-height: 1.1; margin: 0; color: var(--fg-max); letter-spacing: .01em; }
+/* Silkscreen's bold is for the logo and small labels; at headline size the
+   regular cut keeps every letter legible. */
+h2 { font-size: clamp(28px, 4.2vw, 48px); font-weight: 400; line-height: 1.15; text-shadow: 4px 4px 0 var(--bg-0); max-width: 22ch; text-wrap: balance; }
+h3 { font-size: 16px; text-transform: uppercase; letter-spacing: .06em; }
+.lede { max-width: 62ch; color: var(--fg); margin: 20px 0 0; font-size: 17px; }
+.muted { color: var(--fg-2); }
+.kbd, kbd {
+  display: inline-block;
+  font: 400 12px/1 var(--pixel);
+  color: var(--fg-max);
+  background: var(--bg-0);
+  border: 2px solid var(--accent);
+  box-shadow: 0 3px 0 var(--accent);
+  padding: 5px 7px 4px;
+  margin: 0 2px;
+  vertical-align: 2px;
+  white-space: nowrap;
+}
+code { font-family: var(--mono); color: var(--cyan-soft); }
+
+/* Pixel corners: a stepped clip, so no box ever looks like a rounded web card. */
+.px-corners {
+  clip-path: polygon(
+    0 var(--px), var(--px) var(--px), var(--px) 0,
+    calc(100% - var(--px)) 0, calc(100% - var(--px)) var(--px), 100% var(--px),
+    100% calc(100% - var(--px)), calc(100% - var(--px)) calc(100% - var(--px)),
+    calc(100% - var(--px)) 100%, var(--px) 100%, var(--px) calc(100% - var(--px)),
+    0 calc(100% - var(--px)));
+}
+
+/* Buttons: pixel-cornered blocks with a hard drop shadow that you press into. */
+.btn-wrap { display: inline-block; filter: drop-shadow(4px 4px 0 var(--bg-0)); transition: filter .12s steps(2); }
+.btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 16px 22px 15px;
+  font: 700 15px/1.2 var(--pixel);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--bg-0);
+  background: var(--cyan);
+  transition: transform .12s steps(2), background .12s steps(2);
+}
+.btn .pxi { width: 20px; height: 20px; }
+.btn-wrap:hover { filter: drop-shadow(6px 6px 0 var(--bg-0)); }
+.btn-wrap:hover .btn { transform: translate(-2px, -2px); background: var(--fg-max); color: var(--bg-0); }
+.btn-wrap:active .btn { transform: translate(2px, 2px); }
+.btn-wrap:active { filter: drop-shadow(2px 2px 0 var(--bg-0)); }
+.btn.ghost { background: var(--bg-2); color: var(--fg-hi); }
+.btn-wrap:hover .btn.ghost { background: var(--sel); color: var(--fg-max); }
+.btn small { display: block; font: 500 11px/1.2 var(--mono); text-transform: none; letter-spacing: 0; opacity: .8; margin-top: 3px; }
+
+/* Windows: Hyprland tiles with a jade border and a hard pixel shadow. */
+.win {
+  background: var(--bg-1);
+  border: 2px solid var(--accent);
+  box-shadow: 8px 8px 0 var(--bg-0);
+  position: relative;
+}
+.win-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-0);
+  border-bottom: 2px solid var(--bg-2);
+  font: 400 11px/1 var(--pixel);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--fg-2);
+}
+.win-bar .tag { color: var(--bg-0); background: var(--accent); padding: 3px 6px 2px; }
+.win-bar .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win-bar .dots { display: flex; gap: 4px; }
+.win-bar .dots i { width: 8px; height: 8px; background: var(--bg-2); display: block; }
+.win-bar .dots i:first-child { background: var(--cyan); }
+
+/* ───────── hero ───────── */
+.hero { padding: 72px 0 40px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 56px; align-items: center; }
+.badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 12px 7px;
+  background: var(--bg-0);
+  border: 2px solid var(--yellow);
+  color: var(--yellow);
+  font: 700 12px/1.35 var(--pixel);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  text-wrap: balance;
+}
+.badge:hover { color: var(--fg-max); border-color: var(--fg-max); }
+.badge .pxi { width: 16px; height: 16px; flex: none; }
+.logo {
+  margin: 28px 0 0;
+  font: 700 clamp(40px, 6.4vw, 76px)/.9 var(--pixel);
+  color: var(--cyan);
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  text-shadow: 4px 4px 0 var(--accent), 8px 8px 0 var(--bg-0);
+}
+.logo .cursor { display: inline-block; width: .36em; height: .72em; background: var(--fg-max); margin-left: .1em; vertical-align: 0; animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.tagline { margin: 24px 0 0; font: 700 clamp(20px, 2.4vw, 26px)/1.35 var(--mono); color: var(--fg-max); max-width: 26ch; }
+.hero p.lede { font-size: 17px; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 32px; align-items: center; }
+.cmd {
+  margin-top: 28px;
+  display: flex; align-items: stretch;
+  background: var(--bg-0);
+  border: 2px solid var(--bg-2);
+  max-width: 100%;
+}
+.cmd pre {
+  margin: 0; padding: 12px 14px;
+  flex: 1; min-width: 0;
+  overflow-x: auto;
+  font: 500 13px/1.5 var(--mono);
+  color: var(--fg-hi);
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-2) transparent;
+}
+.cmd pre .dollar { color: var(--green); user-select: none; }
+.copy {
+  flex: none;
+  border: 0; border-left: 2px solid var(--bg-2);
+  background: var(--bg-1);
+  color: var(--cyan);
+  font: 700 11px/1 var(--pixel);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 0 14px;
+  cursor: pointer;
+}
+.copy:hover { background: var(--bg-2); color: var(--fg-max); }
+.copy.done { color: var(--yellow); }
+.meta { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 12px/1.4 var(--pixel); text-transform: uppercase; letter-spacing: .04em; color: var(--fg-2); }
+.meta span::before { content: "■ "; color: var(--accent); }
+.hero-shot video { width: 100%; aspect-ratio: 8 / 5; object-fit: cover; background: var(--bg-0); }
+.hero-shot .win-bar .kbd { margin: 0; box-shadow: none; padding: 3px 5px 2px; font-size: 10px; }
+.hero-keys { display: flex; align-items: center; gap: 12px; margin-top: 22px; color: var(--fg-2); font: 400 12px/1.4 var(--pixel); text-transform: uppercase; letter-spacing: .04em; }
+.keycap {
+  display: inline-grid; place-items: center;
+  min-width: 52px; height: 48px; padding: 0 14px;
+  font: 700 16px/1 var(--pixel);
+  color: var(--fg-max);
+  background: var(--bg-0);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 6px 0 var(--accent);
+  animation: press 3.2s steps(1) infinite;
+}
+.keycap + .keycap { animation-delay: .12s; }
+@keyframes press {
+  0%, 82% { transform: translateY(0); box-shadow: 0 6px 0 var(--accent); }
+  86%, 94% { transform: translateY(4px); box-shadow: 0 2px 0 var(--accent); background: var(--sel); }
+}
+.plus { color: var(--cyan); font: 700 20px/1 var(--pixel); }
+
+/* ───────── pixel city (Osaka at night, in jade) ───────── */
+.city { position: relative; margin-top: 24px; border-top: 2px solid var(--bg-2); border-bottom: 2px solid var(--bg-2); background: var(--bg-0); }
+.city canvas { width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* ───────── demo ───────── */
+.demo-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 32px; margin-top: 40px; align-items: start; }
+.demo-grid video { width: 100%; aspect-ratio: 8 / 5; background: var(--bg-0); }
+.chapters { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.chapters button {
+  width: 100%;
+  display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: start;
+  text-align: left;
+  padding: 12px 12px;
+  background: var(--bg-1);
+  border: 2px solid var(--bg-2);
+  color: var(--fg);
+  font: 400 14px/1.45 var(--mono);
+  cursor: pointer;
+}
+.chapters button:hover, .chapters button.on { border-color: var(--cyan); background: var(--bg-0); }
+.chapters .t { font: 700 13px/1.45 var(--pixel); color: var(--cyan); }
+.chapters .q { color: var(--fg-max); }
+.chapters .q::before { content: "› "; color: var(--green); }
+
+/* ───────── features: a tiled workspace ───────── */
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 48px; }
+.tile {
+  background: var(--bg-1);
+  border: 2px solid var(--bg-2);
+  padding: 22px 22px 24px;
+  position: relative;
+  transition: border-color .12s steps(2), transform .12s steps(2);
+}
+.tile:hover { border-color: var(--accent); transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--bg-0); }
+.tile .pxi { width: 40px; height: 40px; color: var(--cyan); margin-bottom: 18px; }
+.tile h3 { color: var(--fg-max); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tile p { margin: 10px 0 0; font-size: 15px; color: var(--fg); }
+.tile p.small { font-size: 13px; color: var(--fg-2); }
+.new { font: 700 10px/1 var(--pixel); color: var(--bg-0); background: var(--yellow); padding: 4px 6px 3px; letter-spacing: .06em; }
+.tile.wide { grid-column: span 2; }
+
+/* ───────── spotlight: offline drives ───────── */
+.spot { background: linear-gradient(to bottom, transparent, rgba(9, 15, 13, .7) 12%, rgba(9, 15, 13, .7) 88%, transparent); }
+.spot-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; margin-top: 40px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; counter-reset: step; }
+.steps li { display: grid; grid-template-columns: 56px 1fr; gap: 16px; }
+.steps .n { font: 700 28px/1 var(--pixel); color: var(--accent); }
+.steps h3 { color: var(--fg-max); margin-bottom: 6px; }
+.steps p { margin: 0; font-size: 15px; }
+
+.qf { font-size: 12.5px; line-height: 1.35; }
+.qf-search { display: flex; align-items: center; gap: 8px; margin: 12px; padding: 8px 10px; background: var(--bg-0); border: 2px solid var(--accent); color: var(--fg-max); }
+.qf-search .typed::after { content: ""; display: inline-block; width: 7px; height: 14px; background: var(--fg-max); vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+.qf-search .chip { margin-left: auto; font: 700 10px/1 var(--pixel); color: var(--magenta); letter-spacing: .05em; }
+.qf-hdr { padding: 6px 14px 4px; font: 700 10px/1 var(--pixel); color: var(--fg-2); letter-spacing: .06em; display: flex; justify-content: space-between; }
+.qf-row { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 7px 14px; border-left: 2px solid transparent; }
+.qf-row .ic { width: 14px; height: 14px; }
+.qf-row .nm { color: var(--fg-hi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qf-row .sub { display: block; color: var(--fg-2); font-size: 11.5px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qf-row .pill { font: 700 9px/1 var(--pixel); letter-spacing: .06em; padding: 4px 5px 3px; color: var(--cyan); background: rgba(45, 213, 183, .12); }
+.qf-row.off .nm, .qf-row.off .ic { opacity: .58; }
+.qf-row.off .pill { color: var(--fg-2); background: rgba(83, 104, 91, .3); }
+.qf-row.sel { background: var(--sel); border-left-color: var(--cyan); }
+.qf-foot { display: flex; justify-content: center; padding: 9px 12px; border-top: 2px solid var(--bg-2); color: var(--fg-2); font-size: 12px; min-height: 36px; }
+.qf-foot .hint { color: var(--yellow); }
+.drive { display: flex; align-items: center; gap: 10px; padding: 8px 14px; }
+.drive .nm { color: var(--fg-hi); }
+.drive.off { opacity: .58; }
+
+/* ───────── man page ───────── */
+.man { margin-top: 40px; }
+.man pre { margin: 0; padding: 22px 24px; overflow-x: auto; font: 400 14px/1.75 var(--mono); color: var(--fg); }
+.man .sec { color: var(--fg-max); font-weight: 700; }
+.man .k { color: var(--cyan); }
+.man-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.man-grid dl { margin: 0; padding: 18px 24px 24px; display: grid; grid-template-columns: max-content 1fr; gap: 10px 18px; align-content: start; }
+.man-grid dl + dl { border-left: 2px solid var(--bg-2); }
+.man-grid dt { white-space: nowrap; }
+.man-grid dd { margin: 0; font-size: 15px; }
+
+/* ───────── privacy log ───────── */
+.log { margin-top: 40px; }
+.log ul { list-style: none; margin: 0; padding: 18px 22px 22px; display: grid; gap: 10px; font-size: 15px; }
+.log li { display: grid; grid-template-columns: 64px 1fr; gap: 10px; }
+.log .ok { color: var(--green); font-weight: 700; white-space: pre; }
+
+/* ───────── install ───────── */
+.install-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; margin-top: 40px; }
+.install-grid .win-body { padding: 24px; }
+.install-grid .win-body p { margin: 0 0 18px; }
+.install-grid .cmd { margin-top: 14px; }
+.reqs { margin: 22px 0 0; padding: 0; list-style: none; font-size: 14px; color: var(--fg-2); display: grid; gap: 4px; }
+.reqs li::before { content: "▪ "; color: var(--accent); }
+
+/* ───────── author ───────── */
+.author-grid { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 40px; margin-top: 40px; align-items: start; }
+.avatar { width: 216px; height: 216px; background: var(--bg-0); border: 2px solid var(--accent); box-shadow: 8px 8px 0 var(--bg-0); padding: 12px; }
+.avatar svg { width: 100%; height: 100%; }
+.author-grid h3.name { font-size: clamp(28px, 3.4vw, 40px); font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--fg-max); text-shadow: 4px 4px 0 var(--bg-0); }
+.role { margin: 10px 0 0; font: 400 13px/1.5 var(--pixel); text-transform: uppercase; letter-spacing: .04em; color: var(--cyan); }
+.bio { margin: 18px 0 0; max-width: 66ch; }
+.links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.links a {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 12px 8px;
+  border: 2px solid var(--bg-2);
+  background: var(--bg-1);
+  font: 700 12px/1 var(--pixel);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--fg-hi);
+}
+.links a:hover { border-color: var(--cyan); color: var(--cyan); }
+.links a.primary { border-color: var(--cyan); color: var(--cyan); }
+.links .pxi { width: 14px; height: 14px; }
+.more { margin-top: 40px; }
+.more h3 { color: var(--fg-2); font-size: 13px; }
+.more-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+.more-grid a { display: block; padding: 16px 18px; border: 2px solid var(--bg-2); background: var(--bg-1); color: var(--fg); }
+.more-grid a:hover { border-color: var(--accent); }
+.more-grid b { display: block; font: 700 14px/1.2 var(--pixel); color: var(--fg-max); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.more-grid span { font-size: 14px; color: var(--fg-2); }
+
+/* ───────── final call + footer ───────── */
+.final { text-align: center; padding: 104px 0 112px; }
+.final h2 { margin: 0 auto; max-width: 20ch; }
+.final .lede { margin-left: auto; margin-right: auto; }
+.final .cta-row { justify-content: center; }
+footer { border-top: 2px solid var(--bg-2); background: var(--bg-0); padding: 28px 0 36px; font-size: 13px; color: var(--fg-2); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+footer p { margin: 0; max-width: 72ch; }
+footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 12px/1.6 var(--pixel); text-transform: uppercase; letter-spacing: .04em; }
+
+/* Pixel icons are drawn by script from ASCII maps; without script they leave no hole. */
+.pxi { display: inline-block; flex: none; }
+.pxi svg { width: 100%; height: 100%; shape-rendering: crispEdges; }
+
+/* ───────── responsive ───────── */
+@media (max-width: 1020px) {
+  .hero-grid, .spot-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .demo-grid { grid-template-columns: minmax(0, 1fr); }
+  .chapters { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tiles .tile.wide:not(:first-child) { grid-column: auto; }
+  .bar-clock { display: none; }
+  .bar-right a.opt { display: none; }
+}
+@media (max-width: 720px) {
+  section { padding: 72px 0; }
+  .hero { padding-top: 40px; }
+  .tiles, .install-grid, .more-grid, .man-grid { grid-template-columns: minmax(0, 1fr); }
+  .tile.wide { grid-column: auto; }
+  .man-grid dl + dl { border-left: 0; border-top: 2px solid var(--bg-2); }
+  .author-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .avatar { width: 152px; height: 152px; }
+  .bar-right a:not(.bar-cta) { display: none; }
+  .ws { display: none; }
+  .btn { padding: 14px 16px 13px; font-size: 13px; }
+  .cta-row .btn-wrap { width: 100%; }
+  .cta-row .btn { width: 100%; justify-content: center; }
+  .steps li { grid-template-columns: 44px 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar" aria-label="Site">
+  <div class="wrap">
+    <div class="bar-left">
+      <a class="bar-logo" href="#top" aria-label="QuickFile, back to top"><i class="pxi" data-icon="tree" aria-hidden="true"></i>QuickFile</a>
+      <div class="ws" aria-hidden="true"><span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    </div>
+    <div class="bar-clock" id="clock" aria-hidden="true">— — —</div>
+    <nav class="bar-right" aria-label="Sections">
+      <a href="#demo">Demo</a>
+      <a href="#features">Features</a>
+      <a class="opt" href="#offline">Offline drives</a>
+      <a class="opt" href="#author">Author</a>
+      <a class="bar-cta" href="https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile">Install</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ═════════ hero ═════════ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <a class="badge" href="https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile">
+        <i class="pxi" data-icon="star" aria-hidden="true"></i>
+        Officially listed on the Omarchy Plugin Marketplace
+      </a>
+      <h1 class="logo">QuickFile<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="tagline">The IDE-style file manager for&nbsp;Omarchy.</p>
+      <p class="lede">Press <kbd>SUPER</kbd>+<kbd>B</kbd>, type what you remember, open what you meant. A native sidebar that lives in the Omarchy shell: a file tree, plain-language search on a local AI model, previews, safe file operations with Undo, Git context — and a catalog of the drives sitting in your drawer.</p>
+      <div class="cta-row">
+        <span class="btn-wrap"><a class="btn px-corners" href="https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile"><i class="pxi" data-icon="download" aria-hidden="true"></i><span>Get it on the marketplace<small>plugins.omarchy.org · free</small></span></a></span>
+        <span class="btn-wrap"><a class="btn ghost px-corners" href="https://github.com/baranskyi/omarchy-quickfile"><i class="pxi" data-icon="code" aria-hidden="true"></i><span>Source on GitHub<small>MIT licensed</small></span></a></span>
+      </div>
+      <div class="cmd px-corners">
+        <pre><span class="dollar">$ </span><span id="cmd-add">omarchy plugin add https://github.com/baranskyi/omarchy-quickfile.git --enable</span></pre>
+        <button class="copy" type="button" data-copy="cmd-add">Copy</button>
+      </div>
+      <div class="meta"><span>v0.17.0</span><span>Omarchy 4 · Quattro</span><span>Runs offline</span><span>No telemetry</span></div>
+    </div>
+    <div class="hero-shot">
+      <div class="win">
+        <div class="win-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="tag">quickfile</span>
+          <span class="grow">~/ · smart search</span>
+          <span class="kbd">SUPER+B</span>
+        </div>
+        <video autoplay muted loop playsinline preload="metadata" poster="assets/demo-poster.jpg" aria-label="QuickFile opening with SUPER+B and finding a project from a plain-language request">
+          <source src="assets/quickfile-loop.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="hero-keys" aria-hidden="true">
+        <span class="keycap">SUPER</span><span class="plus">+</span><span class="keycap">B</span>
+        <span>and it's open</span>
+      </div>
+    </div>
+  </div>
+  <div class="city" aria-hidden="true"><canvas id="city" width="480" height="96"></canvas></div>
+</section>
+
+<!-- ═════════ demo ═════════ -->
+<section id="demo">
+  <div class="wrap">
+    <p class="prompt"><span class="u">slava</span>@<span class="h">omarchy</span> <span class="d">~/quickfile</span> $ <span class="c">quickfile --demo</span></p>
+    <h2>One shortcut. Then plain words.</h2>
+    <p class="lede">Two minutes, no cuts: QuickFile opens with <kbd>SUPER</kbd>+<kbd>B</kbd>, reads requests in plain English and finds folders, documents and the things inside them — typos included.</p>
+    <div class="demo-grid">
+      <div class="win">
+        <div class="win-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="tag">demo</span>
+          <span class="grow">quickfile-smart-search.mp4 · 2:05</span>
+        </div>
+        <video id="demo-video" controls preload="metadata" playsinline poster="assets/demo-poster.jpg">
+          <source src="assets/quickfile-demo.mp4" type="video/mp4">
+          Your browser cannot play this video. <a href="assets/quickfile-demo.mp4">Download it</a>.
+        </video>
+      </div>
+      <ol class="chapters" aria-label="Chapters">
+        <li><button type="button" data-t="0"><span class="t">0:00</span><span><kbd>SUPER</kbd>+<kbd>B</kbd> opens QuickFile</span></button></li>
+        <li><button type="button" data-t="8.2"><span class="t">0:08</span><span class="q">find the rainbow for dogs project</span></button></li>
+        <li><button type="button" data-t="36.2"><span class="t">0:36</span><span class="q">find cv for slava baranskyi in pdf</span></button></li>
+        <li><button type="button" data-t="66.4"><span class="t">1:06</span><span class="q">find a boeing mba reserch</span></button></li>
+        <li><button type="button" data-t="94.4"><span class="t">1:34</span><span class="q">where project quickfile located</span></button></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ features ═════════ -->
+<section id="features">
+  <div class="wrap">
+    <p class="prompt"><span class="u">slava</span>@<span class="h">omarchy</span> <span class="d">~/quickfile</span> $ <span class="c">ls features/</span></p>
+    <h2>A file manager that lives in your bar.</h2>
+    <p class="lede">QuickFile opens as a real window docked to the edge of the screen. Your tiled windows move aside instead of hiding underneath, and <kbd>Alt</kbd>+<kbd>Tab</kbd> reaches it like any other app.</p>
+    <div class="tiles">
+      <article class="tile wide">
+        <i class="pxi" data-icon="search" aria-hidden="true"></i>
+        <h3>Smart search</h3>
+        <p>Ask in plain English, Russian or Ukrainian: <code>photos from last summer</code>, <code>the contract pdf</code>, <code>where is the invoice from march</code>. An optional local model, Laya, runs on your CPU and offline. It sees the words you type — never file names, paths or contents.</p>
+        <p class="small">Six exact modes stay one click away: fuzzy, contains, exact, prefix, suffix and regex. Without the model, Smart still ranks your keywords.</p>
+      </article>
+      <article class="tile">
+        <i class="pxi" data-icon="drive" aria-hidden="true"></i>
+        <h3>Offline drives <span class="new">New</span></h3>
+        <p>Index a USB drive once. Search it after it's back in the drawer, and QuickFile tells you which drive to plug in.</p>
+      </article>
+      <article class="tile">
+        <i class="pxi" data-icon="undo" aria-hidden="true"></i>
+        <h3>Safe by default</h3>
+        <p>Copy, move, rename and duplicate with an explicit choice on every conflict. Deleting goes to Trash, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> takes it back.</p>
+      </article>
+      <article class="tile">
+        <i class="pxi" data-icon="eye" aria-hidden="true"></i>
+        <h3>Preview on Space</h3>
+        <p>Text, images and folders preview right in the sidebar. <kbd>Shift</kbd>+<kbd>Space</kbd> hands off to Sushi.</p>
+      </article>
+      <article class="tile">
+        <i class="pxi" data-icon="usb" aria-hidden="true"></i>
+        <h3>Devices</h3>
+        <p>USB sticks appear on their own. One click mounts and opens a drive; one button ejects it safely.</p>
+      </article>
+      <article class="tile">
+        <i class="pxi" data-icon="branch" aria-hidden="true"></i>
+        <h3>Git context</h3>
+        <p>Branch and per-file status in the tree, plus a Git tab for whatever you selected.</p>
+      </article>
+      <article class="tile wide">
+        <i class="pxi" data-icon="book" aria-hidden="true"></i>
+        <h3>Project knowledge</h3>
+        <p>See the rules your coding agents read — Claude, Codex, Gemini, Cursor, Copilot, Windsurf — with an estimate of what they cost in tokens.</p>
+      </article>
+      <article class="tile wide">
+        <i class="pxi" data-icon="bolt" aria-hidden="true"></i>
+        <h3>Live, not polled</h3>
+        <p>Native filesystem events update rows in place. Your selection, scroll position and unsaved notes stay where they were.</p>
+      </article>
+      <article class="tile">
+        <i class="pxi" data-icon="palette" aria-hidden="true"></i>
+        <h3>Theme-native</h3>
+        <p>Colors, type and spacing come from your Omarchy theme. Switch to Osaka Jade, and so does QuickFile.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ offline drives ═════════ -->
+<section id="offline" class="spot">
+  <div class="wrap">
+    <p class="prompt"><span class="u">slava</span>@<span class="h">omarchy</span> <span class="d">~/quickfile</span> $ <span class="c">cat CHANGELOG/0.17.0</span></p>
+    <h2>Find files on drives that aren't plugged in.</h2>
+    <div class="spot-grid">
+      <ol class="steps">
+        <li><span class="n">01</span><div><h3>Index</h3><p>Press <span class="kbd" aria-label="the index button"><i class="pxi" data-icon="refresh" aria-hidden="true" style="width:11px;height:11px;vertical-align:-1px"></i></span> next to a drive in <code>DEVICES</code>. QuickFile walks it once into a private catalog: names, paths, sizes and dates. Never contents.</p></div></li>
+        <li><span class="n">02</span><div><h3>Unplug</h3><p>The drive stays listed, dimmed: <code>Not connected · indexed 3d ago</code>. Plug it back in, and it re-indexes in the background.</p></div></li>
+        <li><span class="n">03</span><div><h3>Search anyway</h3><p>Its files show up after your live results, marked <code>OFFLINE</code>. Press <kbd>Enter</kbd> and QuickFile names the drive to connect. Plug it in, and the row comes alive where it is.</p></div></li>
+      </ol>
+      <div class="win qf" role="img" aria-label="QuickFile showing two live results and two offline results from a drive called ARCHIVE, with the hint: Connect ARCHIVE to open beach-2024.jpg">
+        <div class="win-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="tag">quickfile</span><span class="grow">/home/slava</span></div>
+        <div class="qf-hdr"><span>■ DEVICES</span><span>1 drive · 1 offline</span></div>
+        <div class="drive"><i class="pxi ic" data-icon="usb" style="width:14px;height:14px;color:var(--cyan)"></i><span class="nm">SANDISK</span><span class="muted">· 64 GB · /run/media/slava/SANDISK</span></div>
+        <div class="drive off"><i class="pxi ic" data-icon="drive" style="width:14px;height:14px;color:var(--fg)"></i><span class="nm">ARCHIVE</span><span class="muted">· 1 TB · Not connected · indexed 3d ago</span></div>
+        <div class="qf-search"><span class="typed">beach photos 2024</span><span class="chip">SMART</span></div>
+        <div class="qf-hdr"><span>■ FILES</span><span>4 items · 2 offline</span></div>
+        <div class="qf-row"><i class="pxi ic" data-icon="folder" style="color:var(--orange)"></i><span class="nm">Photos/2024-beach</span><span class="pill">FOLDER</span></div>
+        <div class="qf-row"><i class="pxi ic" data-icon="file" style="color:var(--fg-2)"></i><span class="nm">beach-trip-plan.md</span><span class="pill">NAME</span></div>
+        <div class="qf-row off sel" id="qf-offline"><i class="pxi ic" data-icon="file" style="color:var(--fg-2)"></i><span class="nm">beach-2024.jpg<span class="sub">▣ ARCHIVE · 1 TB · not connected</span></span><span class="pill">OFFLINE</span></div>
+        <div class="qf-row off"><i class="pxi ic" data-icon="folder" style="color:var(--orange)"></i><span class="nm">Beach 2024 RAW<span class="sub">▣ ARCHIVE · 1 TB · not connected</span></span><span class="pill">OFFLINE</span></div>
+        <div class="qf-foot"><span class="hint" id="qf-hint">Connect “ARCHIVE” to open beach-2024.jpg</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ keys ═════════ -->
+<section id="keys">
+  <div class="wrap">
+    <p class="prompt"><span class="u">slava</span>@<span class="h">omarchy</span> <span class="d">~/quickfile</span> $ <span class="c">man quickfile</span></p>
+    <h2>Keyboard first. Mouse welcome.</h2>
+    <div class="win man">
+      <div class="win-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="tag">man</span><span class="grow">QUICKFILE(1) · press ? inside QuickFile for the full sheet</span></div>
+      <div class="man-grid">
+        <dl>
+          <dt><kbd>SUPER</kbd>+<kbd>B</kbd></dt><dd>Open or close QuickFile</dd>
+          <dt><kbd>/</kbd></dt><dd>Search</dd>
+          <dt><kbd>↑</kbd><kbd>↓</kbd> <kbd>J</kbd><kbd>K</kbd></dt><dd>Move through the list</dd>
+          <dt><kbd>Enter</kbd></dt><dd>Open a file, expand a folder</dd>
+          <dt><kbd>Space</kbd></dt><dd>Preview in the sidebar</dd>
+          <dt><kbd>?</kbd></dt><dd>Every shortcut, in a sheet</dd>
+        </dl>
+        <dl>
+          <dt><kbd>Ctrl</kbd>+<kbd>C</kbd> <kbd>V</kbd></dt><dd>Copy and paste files</dd>
+          <dt><kbd>R</kbd></dt><dd>Rename</dd>
+          <dt><kbd>F</kbd></dt><dd>Star a favorite</dd>
+          <dt><kbd>Delete</kbd></dt><dd>Move to Trash</dd>
+          <dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>Undo the last operation</dd>
+          <dt><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></dt><dd>Trash: restore or delete for good</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ privacy ═════════ -->
+<section id="privacy">
+  <div class="wrap">
+    <p class="prompt"><span class="u">slava</span>@<span class="h">omarchy</span> <span class="d">~/quickfile</span> $ <span class="c">journalctl -u quickfile --privacy</span></p>
+    <h2>Local. Offline. Yours.</h2>
+    <div class="win log">
+      <div class="win-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="tag">log</span><span class="grow">security model</span></div>
+      <ul>
+        <li><span class="ok">[ OK ]</span><span>No telemetry, no accounts, no cloud. Nothing about your files leaves the machine.</span></li>
+        <li><span class="ok">[ OK ]</span><span>The Smart Search model runs offline on the CPU. It sees your query — never file names, paths or contents.</span></li>
+        <li><span class="ok">[ OK ]</span><span>The only network request is the model download, and only after you confirm it.</span></li>
+        <li><span class="ok">[ OK ]</span><span>No root and no system changes. Notes, history and drive catalogs live in private <code>0600</code> files under your home.</span></li>
+        <li><span class="ok">[ OK ]</span><span>Filenames are treated as untrusted input: shown as plain text, passed as arguments, never through a shell.</span></li>
+        <li><span class="ok">[ OK ]</span><span>Delete means Trash. Deleting for good needs its own confirmation.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ install ═════════ -->
+<section id="install">
+  <div class="wrap">
+    <p class="prompt"><span class="u">slava</span>@<span class="h">omarchy</span> <span class="d">~</span> $ <span class="c">install quickfile</span></p>
+    <h2>Two ways in. Both take a minute.</h2>
+    <div class="install-grid">
+      <div class="win">
+        <div class="win-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="tag">a</span><span class="grow">from the marketplace</span></div>
+        <div class="win-body">
+          <p>QuickFile is listed on the official Omarchy Plugin Marketplace, where every release passes compatibility and automated security checks before it's published.</p>
+          <span class="btn-wrap"><a class="btn px-corners" href="https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile"><i class="pxi" data-icon="download" aria-hidden="true"></i><span>Open in the marketplace<small>plugins.omarchy.org</small></span></a></span>
+        </div>
+      </div>
+      <div class="win">
+        <div class="win-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="tag">b</span><span class="grow">from a terminal</span></div>
+        <div class="win-body">
+          <p>Add the plugin and enable it. QuickFile's button appears in the bar.</p>
+          <div class="cmd px-corners">
+            <pre><span class="dollar">$ </span><span id="cmd-add-2">omarchy plugin add https://github.com/baranskyi/omarchy-quickfile.git --enable</span></pre>
+            <button class="copy" type="button" data-copy="cmd-add-2">Copy</button>
+          </div>
+          <p style="margin:18px 0 0">For the shortcut, add one line to <code>~/.config/hypr/bindings.lua</code>:</p>
+          <div class="cmd px-corners">
+            <pre><span id="cmd-bind">o.bind("SUPER + B", "QuickFile sidebar", "omarchy-shell shell toggle m0sthatedman.quickfile")</span></pre>
+            <button class="copy" type="button" data-copy="cmd-bind">Copy</button>
+          </div>
+          <ul class="reqs">
+            <li>Omarchy 4 (Quattro); everything else it needs ships with Omarchy</li>
+            <li>Optional: ripgrep, zoxide, GNOME Sushi</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ author ═════════ -->
+<section id="author">
+  <div class="wrap">
+    <p class="prompt"><span class="u">slava</span>@<span class="h">omarchy</span> <span class="d">~</span> $ <span class="c">whoami</span></p>
+    <h2>Made by a marketer who ships code.</h2>
+    <div class="author-grid">
+      <div class="avatar" aria-hidden="true"><i class="pxi" data-icon="avatar" style="width:100%;height:100%"></i></div>
+      <div>
+        <h3 class="name">Slava Baranskyi</h3>
+        <p class="role">Founder at easygym.me · FCIM · MBA, IE Business School</p>
+        <p class="bio">Slava Baranskyi is the founder of <a href="https://easygym.me/en">easygym.me</a>, fitness club management software, and is based in Dubai. He is a Fellow of the Chartered Institute of Marketing and holds an MBA from IE Business School. His earlier work includes LIVE.LOVE, Lifehacker.ru and Petcube. He writes <a href="https://www.restless-brain.com/about">Restless Brain</a> about marketing, AI and the systems he builds — QuickFile is one of them, and it runs on his own Omarchy desktop every day.</p>
+        <div class="links">
+          <a class="primary" href="https://www.linkedin.com/in/baranskiy/" rel="me author"><i class="pxi" data-icon="person" aria-hidden="true"></i>LinkedIn</a>
+          <a href="https://www.restless-brain.com/about" rel="me"><i class="pxi" data-icon="book" aria-hidden="true"></i>Restless Brain</a>
+          <a href="https://github.com/baranskyi" rel="me"><i class="pxi" data-icon="code" aria-hidden="true"></i>GitHub</a>
+          <a href="https://easygym.me/en#founder"><i class="pxi" data-icon="bolt" aria-hidden="true"></i>easygym.me</a>
+        </div>
+      </div>
+    </div>
+    <div class="more">
+      <h3>More Omarchy plugins by Slava</h3>
+      <div class="more-grid">
+        <a href="https://plugins.omarchy.org/plugin.html?id=io.github.baranskyi.omavoice"><b>Omavoice</b><span>An agentic voice assistant for Omarchy.</span></a>
+        <a href="https://plugins.omarchy.org/plugin.html?id=io.github.baranskyi.omacash"><b>Omacash</b><span>Money left on your AI services, right in the bar.</span></a>
+        <a href="https://plugins.omarchy.org/plugin.html?id=io.github.baranskyi.omafold"><b>Omafold</b><span>A reveal-on-demand drawer that keeps the bar tidy.</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ final call ═════════ -->
+<section class="final">
+  <div class="wrap">
+    <p class="prompt" style="text-align:center"><span class="u">slava</span>@<span class="h">omarchy</span> <span class="d">~</span> $ <span class="c">exit</span></p>
+    <h2>Stop hunting for files. Ask for them.</h2>
+    <p class="lede">Free, open source and listed on the official Omarchy Plugin Marketplace.</p>
+    <div class="cta-row">
+      <span class="btn-wrap"><a class="btn px-corners" href="https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile"><i class="pxi" data-icon="download" aria-hidden="true"></i><span>Get QuickFile<small>Omarchy Plugin Marketplace</small></span></a></span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>QuickFile 0.17.0 · MIT License · © 2026 <a href="https://www.linkedin.com/in/baranskiy/">Slava Baranskyi</a>. QuickFile is an independent community plugin listed on the Omarchy Plugin Marketplace; it is not made by the Omarchy team.</p>
+    <nav aria-label="Footer">
+      <a href="https://plugins.omarchy.org/plugin.html?id=m0sthatedman.quickfile">Marketplace</a>
+      <a href="https://github.com/baranskyi/omarchy-quickfile">GitHub</a>
+      <a href="https://github.com/baranskyi/omarchy-quickfile/releases">Releases</a>
+      <a href="https://omarchy.org/">Omarchy</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Pixel icons from ASCII maps: one character per pixel. */
+  const PALETTE = { "#": "currentColor", "+": "#2dd5b7", "o": "#509475", "*": "#e5c736", "w": "#f7e8b2", "d": "#23372b", "k": "#090f0d" };
+  const ICONS = {
+    tree: [
+      "................",
+      "...###.....###..",
+      "...###.....###..",
+      "...############.",
+      "....#......###..",
+      "....#...........",
+      "....#......###..",
+      "....#......###..",
+      "....##########..",
+      "....#......###..",
+      "....#...........",
+      "....#......###..",
+      "....#......###..",
+      "....##########..",
+      "...........###..",
+      "................"],
+    star: [
+      ".......#........",
+      ".......#........",
+      "......###.......",
+      "......###.......",
+      "#############...",
+      ".###########....",
+      "...#######......",
+      "...#######......",
+      "..####.####.....",
+      "..###...###.....",
+      ".##.......##....",
+      "................"],
+    download: [
+      "......##......",
+      "......##......",
+      "......##......",
+      "......##......",
+      "..##..##..##..",
+      "...##.##.##...",
+      "....######....",
+      ".....####.....",
+      "......##......",
+      "..............",
+      "##..........##",
+      "##..........##",
+      "##############"],
+    code: [
+      "................",
+      "....#......#....",
+      "...##......##...",
+      "..##...##...##..",
+      ".##...##.....##.",
+      "##...##.......##",
+      ".##.##.......##.",
+      "..###.......##..",
+      "...##......##...",
+      "....#......#...."],
+    search: [
+      "....######......",
+      "..##++++++##....",
+      ".#++......++#...",
+      ".#+........+#...",
+      "#+..........+#..",
+      "#+..........+#..",
+      "#+..........+#..",
+      "#+..........+#..",
+      ".#+........+#...",
+      ".#++......++#...",
+      "..##++++++###...",
+      "....######.###..",
+      "............###.",
+      ".............###",
+      "..............##"],
+    drive: [
+      "................",
+      ".##############.",
+      "#..............#",
+      "#.oooooooooooo.#",
+      "#.oooooooooooo.#",
+      "#..............#",
+      "################",
+      "#..............#",
+      "#..........*.+.#",
+      "#..............#",
+      ".##############.",
+      "................"],
+    undo: [
+      "....#...........",
+      "...##...........",
+      "..########......",
+      ".##########.....",
+      "..##.......##...",
+      "...#........##..",
+      ".............##.",
+      ".............##.",
+      ".............##.",
+      "............##..",
+      "...##########...",
+      "...#########...."],
+    eye: [
+      "................",
+      ".....######.....",
+      "...##......##...",
+      "..#...####...#..",
+      ".#...##++##...#.",
+      "#....#++++#....#",
+      ".#...##++##...#.",
+      "..#...####...#..",
+      "...##......##...",
+      ".....######.....",
+      "................"],
+    usb: [
+      "....######....",
+      "....#.##.#....",
+      "....######....",
+      "..##########..",
+      "..#........#..",
+      "..#..++++..#..",
+      "..#..++++..#..",
+      "..#........#..",
+      "..#..++++..#..",
+      "..#........#..",
+      "..##########..",
+      "......##......",
+      "......##......"],
+    branch: [
+      "..###.....###...",
+      "..#+#.....#+#...",
+      "..###.....###...",
+      "...#.......#....",
+      "...#.......#....",
+      "...#......#.....",
+      "...#.....#......",
+      "...#...##.......",
+      "...#.##.........",
+      "...##...........",
+      "...#............",
+      "..###...........",
+      "..#+#...........",
+      "..###..........."],
+    book: [
+      "................",
+      ".######..######.",
+      "#......##......#",
+      "#.++++.##.++++.#",
+      "#......##......#",
+      "#.+++..##.+++..#",
+      "#......##......#",
+      "#.++++.##.++++.#",
+      "#......##......#",
+      ".######..######.",
+      "........##......"],
+    bolt: [
+      "........###.",
+      ".......###..",
+      "......###...",
+      ".....###....",
+      "....#######.",
+      ".......###..",
+      "......###...",
+      ".....###....",
+      "....##......",
+      "...#........"],
+    palette: [
+      "....######......",
+      "..##......##....",
+      ".#..+.......#...",
+      "#.......*....#..",
+      "#..o..........#.",
+      "#.........###.#.",
+      "#..w.....#...#..",
+      "#........#...#..",
+      ".#........###...",
+      "..##.....##.....",
+      "....#####......."],
+    folder: [
+      "######......",
+      "#....#......",
+      "#....#######",
+      "#..........#",
+      "#..........#",
+      "#..........#",
+      "#..........#",
+      "############"],
+    file: [
+      "#######...",
+      "#.....##..",
+      "#.....#.#.",
+      "#.....####",
+      "#........#",
+      "#.####...#",
+      "#........#",
+      "#.#####..#",
+      "#........#",
+      "##########"],
+    person: [
+      "...####...",
+      "..######..",
+      "..######..",
+      "..######..",
+      "...####...",
+      "..........",
+      ".########.",
+      "##########",
+      "##########"],
+    avatar: [
+      "dddddddddddddddddddddddddddddddd",
+      "dddddddddddddddddddddddddddddddd",
+      "dddddddddddddddddddddddddddddddd",
+      "ddddddd++++++dddd++++++++ddddddd",
+      "ddddddd++++++dddd++++++++ddddddd",
+      "ddddd++dddddd++dd++dddddd++ddddd",
+      "ddddd++dddddd++dd++dddddd++ddddd",
+      "ddddd++dddddddddd++dddddd++ddddd",
+      "ddddd++dddddddddd++dddddd++ddddd",
+      "ddddddd++++++dddd++++++++ddddddd",
+      "ddddddd++++++dddd++++++++ddddddd",
+      "ddddddddddddd++dd++dddddd++ddddd",
+      "ddddddddddddd++dd++dddddd++ddddd",
+      "ddddd++dddddd++dd++dddddd++ddddd",
+      "ddddd++dddddd++dd++dddddd++ddddd",
+      "ddddddd++++++dddd++++++++ddddddd",
+      "ddddddd++++++dddd++++++++ddddddd",
+      "dddddddddddddddddddddddddddddddd",
+      "dddddddddddddddddddddddddddddddd",
+      "dddooooooooooooooooooooooooooddd",
+      "dddod+dododdddddddddddddddddoddd",
+      "dddokkkkkkkkkkkkkkkkkkkkkkkkoddd",
+      "dddokkkkkkkkkkkkkkkkkkkkkkkkoddd",
+      "dddokk++kkkkkkkkk**kkkkkkkkkoddd",
+      "dddokkk++kkkkkkkk**kkkkkkkkkoddd",
+      "dddokkkk++kkkkkkk**kkkkkkkkkoddd",
+      "dddokkk++kkkkkkkk**kkkkkkkkkoddd",
+      "dddokk++kkkkkkkkk**kkkkkkkkkoddd",
+      "dddokkkkkkkkkkkkkkkkkkkkkkkkoddd",
+      "dddooooooooooooooooooooooooooddd",
+      "dddddddddddddddddddddddddddddddd",
+      "dddddddddddddddddddddddddddddddd"],
+    refresh: [
+      "...#####..",
+      "..#.....#.",
+      ".#.......#",
+      ".#....####",
+      ".#........",
+      "........#.",
+      "####....#.",
+      "#.......#.",
+      ".#.....#..",
+      "..#####..."],
+  };
+
+  function pixelSvg(rows) {
+    const h = rows.length;
+    const w = Math.max(...rows.map(r => r.length));
+    let out = "";
+    rows.forEach((row, y) => {
+      let x = 0;
+      while (x < row.length) {
+        const ch = row[x];
+        if (!PALETTE[ch]) { x++; continue; }
+        let run = 1;
+        while (row[x + run] === ch) run++;
+        out += `<rect x="${x}" y="${y}" width="${run}" height="1" fill="${PALETTE[ch]}"/>`;
+        x += run;
+      }
+    });
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${out}</svg>`;
+  }
+  document.querySelectorAll(".pxi[data-icon]").forEach(el => {
+    const rows = ICONS[el.dataset.icon];
+    if (rows) el.innerHTML = pixelSvg(rows);
+  });
+
+  /* The bar clock, in the format Omarchy's own bar uses. */
+  const clock = document.getElementById("clock");
+  const fmt = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  const tick = () => { clock.textContent = fmt.format(new Date()).replace(",", ""); };
+  tick(); setInterval(tick, 15000);
+
+  /* Copy buttons. */
+  document.querySelectorAll(".copy[data-copy]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const text = document.getElementById(btn.dataset.copy).textContent;
+      try { await navigator.clipboard.writeText(text); }
+      catch {
+        const r = document.createRange(); r.selectNodeContents(document.getElementById(btn.dataset.copy));
+        const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand("copy");
+      }
+      btn.textContent = "Copied"; btn.classList.add("done");
+      setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1600);
+    });
+  });
+
+  /* Chapters seek the demo video. */
+  const video = document.getElementById("demo-video");
+  const chapters = [...document.querySelectorAll(".chapters button")];
+  chapters.forEach(btn => btn.addEventListener("click", () => {
+    video.currentTime = Number(btn.dataset.t);
+    video.play().catch(() => {});
+  }));
+  video.addEventListener("timeupdate", () => {
+    let current = chapters[0];
+    for (const btn of chapters) if (video.currentTime >= Number(btn.dataset.t) - .05) current = btn;
+    chapters.forEach(btn => btn.classList.toggle("on", btn === current && !video.paused));
+  });
+  video.addEventListener("pause", () => chapters.forEach(btn => btn.classList.remove("on")));
+
+  /* Osaka at night, in jade pixels: a seeded skyline, so it is the same city every visit. */
+  const canvas = document.getElementById("city");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  let seed = 20261009;
+  const rand = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+  const sky = ["#090f0d", "#0c1512", "#0f1a16", "#111c18", "#14231d"];
+  sky.forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(0, i * (H / sky.length), W, H / sky.length + 1); });
+  for (let i = 0; i < 70; i++) { ctx.fillStyle = rand() < .8 ? "#53685b" : "#8cd3cb"; ctx.fillRect(Math.floor(rand() * W), Math.floor(rand() * 40), 1, 1); }
+  // A pixel moon.
+  const moon = [".####.", "######", "######", "######", "######", ".####."];
+  moon.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === "#") { ctx.fillStyle = "#f7e8b2"; ctx.fillRect(W - 60 + x * 2, 10 + y * 2, 2, 2); } }));
+  ctx.fillStyle = "#d6d5bc"; ctx.fillRect(W - 56, 14, 2, 2); ctx.fillRect(W - 52, 18, 2, 2);
+  // Two layers of buildings: a far, dim one and a near one with lit windows.
+  const windows = [];
+  function layer(base, minH, maxH, color, lit) {
+    let x = -4;
+    while (x < W) {
+      const w = 8 + Math.floor(rand() * 18);
+      const h = minH + Math.floor(rand() * (maxH - minH));
+      const top = H - h;
+      ctx.fillStyle = color; ctx.fillRect(x, top, w, h);
+      if (rand() < .25) { ctx.fillRect(x + Math.floor(w / 2) - 1, top - 6, 2, 6); }
+      if (rand() < .18) { ctx.fillRect(x + 2, top - 2, w - 4, 2); }
+      if (lit) {
+        for (let wy = top + 3; wy < H - 4; wy += 4) for (let wx = x + 2; wx < x + w - 2; wx += 3) {
+          if (rand() < .34) {
+            const r = rand();
+            const c = r < .55 ? "#2dd5b7" : r < .78 ? "#509475" : r < .93 ? "#f7e8b2" : "#d2689c";
+            windows.push([wx, wy, c]);
+            ctx.fillStyle = c; ctx.fillRect(wx, wy, 1, 2);
+          }
+        }
+      }
+      x += w + (rand() < .3 ? 2 : 0);
+    }
+  }
+  layer(H, 18, 58, "#0f1a16", false);
+  layer(H, 12, 46, "#0a1310", true);
+  // Street line and a lone billboard in Osaka magenta.
+  ctx.fillStyle = "#23372b"; ctx.fillRect(0, H - 2, W, 2);
+  ctx.fillStyle = "#d2689c"; ctx.fillRect(Math.floor(W * .62), H - 40, 14, 6);
+  ctx.fillStyle = "#090f0d"; ctx.fillRect(Math.floor(W * .62) + 2, H - 38, 10, 2);
+  if (!reduce) {
+    setInterval(() => {
+      for (let i = 0; i < 6; i++) {
+        const win = windows[Math.floor(rand() * windows.length)];
+        if (!win) return;
+        const on = rand() < .6;
+        ctx.fillStyle = on ? win[2] : "#0a1310"; ctx.fillRect(win[0], win[1], 1, 2);
+      }
+    }, 900);
+  }
+
+  /* The offline mock: the hint types itself out after Enter, then rests. */
+  const hint = document.getElementById("qf-hint");
+  if (hint && !reduce && "IntersectionObserver" in window) {
+    const full = hint.textContent;
+    let started = false;
+    new IntersectionObserver((entries, obs) => {
+      if (started || !entries.some(e => e.isIntersecting)) return;
+      started = true; obs.disconnect();
+      hint.textContent = "Enter ↵";
+      let i = 0;
+      setTimeout(function type() {
+        hint.textContent = full.slice(0, ++i);
+        if (i < full.length) setTimeout(type, 28);
+      }, 900);
+    }, { threshold: .6 }).observe(hint);
+  }
+})();
+</script>
+</body>
+</html>
